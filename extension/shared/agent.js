@@ -136,15 +136,20 @@ async function bootstrap() {
   await api.storage.local.set({ bootstrapped: true });
 }
 
+function handlePopupMessage(message) {
+  if (message?.action === "bootstrap") return bootstrap();
+  if (message?.action === "replace") {
+    remoteQueue = remoteQueue.then(replaceWithSynchronizedTree);
+    return remoteQueue;
+  }
+}
+
+// Register before any asynchronous initialization. A popup message can wake Firefox's background page.
+api.runtime.onMessage.addListener(handlePopupMessage);
+// Firefox popups call this directly through runtime.getBackgroundPage(); Chrome uses onMessage above.
+globalThis.bookmarkSync = { bootstrap, replace: replaceWithSynchronizedTree };
+
 async function start() {
-  // Register this synchronously: a popup message can be what wakes Firefox's background page.
-  api.runtime.onMessage.addListener((message) => {
-    if (message?.action === "bootstrap") return bootstrap();
-    if (message?.action === "replace") {
-      remoteQueue = remoteQueue.then(replaceWithSynchronizedTree);
-      return remoteQueue;
-    }
-  });
   ({ mappings = {} } = await api.storage.local.get({ mappings: {} }));
   api.bookmarks.onCreated.addListener((id, node) => void localCreate(id, node));
   api.bookmarks.onChanged.addListener((id, changed) => void localChange(id, changed));

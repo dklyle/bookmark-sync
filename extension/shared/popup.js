@@ -1,9 +1,19 @@
 const api = globalThis.browser ?? globalThis.chrome;
 const status = document.querySelector("#status");
 
+async function run(action) {
+  // Firefox Manifest V2 has a persistent background page. Calling it directly avoids
+  // a startup race in which the popup is the event that wakes that page.
+  if (typeof api.runtime.getBackgroundPage === "function") {
+    const background = await api.runtime.getBackgroundPage();
+    if (background?.bookmarkSync?.[action]) return background.bookmarkSync[action]();
+  }
+  return api.runtime.sendMessage({ action });
+}
+
 document.querySelector("#bootstrap").addEventListener("click", async () => {
   try {
-    await api.runtime.sendMessage({ action: "bootstrap" });
+    await run("bootstrap");
     status.textContent = "Initial bookmark tree sent to the local daemon.";
   } catch (error) { status.textContent = `Could not bootstrap: ${error.message}`; }
 });
@@ -11,7 +21,7 @@ document.querySelector("#bootstrap").addEventListener("click", async () => {
 document.querySelector("#replace").addEventListener("click", async () => {
   if (!confirm("Replace this browser's local bookmarks with the synchronized tree? This cannot be undone by Bookmark Sync.")) return;
   try {
-    await api.runtime.sendMessage({ action: "replace" });
+    await run("replace");
     status.textContent = "Local bookmarks replaced with the synchronized tree.";
   } catch (error) { status.textContent = `Could not replace bookmarks: ${error.message}`; }
 });
