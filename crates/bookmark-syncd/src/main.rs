@@ -31,6 +31,7 @@ enum Message {
     Register { browser: String },
     Operation { operation: Operation },
     Snapshot { operations: Vec<Operation> },
+    Resync,
     Accepted { operation_id: String },
     Error { message: String },
 }
@@ -251,6 +252,12 @@ async fn serve(stream: UnixStream, state: Arc<State>) -> Result<()> {
                             let _ = state.events.send((browser.clone(), operation));
                         }
                     },
+                    Ok(Message::Resync) => {
+                        let current = current_bookmarks(&state.database.lock().expect("database mutex poisoned"))?;
+                        for operation in current {
+                            write_message(&mut write, &Message::Operation { operation }).await?;
+                        }
+                    }
                     Ok(_) => write_message(&mut write, &Message::Error { message: "unexpected client message".into() }).await?,
                     Err(error) => write_message(&mut write, &Message::Error { message: error.to_string() }).await?,
                 },

@@ -95,6 +95,23 @@ async function applyRemote(op) {
   finally { applying -= 1; }
 }
 
+async function replaceWithSynchronizedTree() {
+  applying += 1;
+  try {
+    for (const rootId of new Set(Object.keys(rootIds))) {
+      for (const child of await api.bookmarks.getChildren(rootId)) {
+        try { await api.bookmarks.removeTree(child.id); }
+        catch (error) { console.error("bookmark-sync could not remove local bookmark", child, error); }
+      }
+    }
+    mappings = {};
+    await saveMappings();
+  } finally {
+    applying -= 1;
+  }
+  send({ type: "resync" });
+}
+
 async function bootstrap() {
   const tree = await api.bookmarks.getTree();
   const operations = [];
@@ -122,6 +139,12 @@ async function start() {
   api.bookmarks.onChanged.addListener((id, changed) => void localChange(id, changed));
   api.bookmarks.onMoved.addListener((id, move) => void localMove(id, move));
   api.bookmarks.onRemoved.addListener((id) => void localRemove(id));
-  api.runtime.onMessage.addListener((message) => { if (message?.action === "bootstrap") return bootstrap(); });
+  api.runtime.onMessage.addListener((message) => {
+    if (message?.action === "bootstrap") return bootstrap();
+    if (message?.action === "replace") {
+      remoteQueue = remoteQueue.then(replaceWithSynchronizedTree);
+      return remoteQueue;
+    }
+  });
 }
 void start();

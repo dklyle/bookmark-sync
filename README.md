@@ -31,9 +31,10 @@ Prerequisites: a Rust toolchain, `systemd --user`, Chrome or Chromium, and Firef
 
 4. In Firefox, open `about:debugging#/runtime/this-firefox`, choose **Load Temporary Add-on**, and select `dist/firefox/manifest.json`. For persistent installation, package and sign the extension with its fixed ID `bookmark-sync@local`; Firefox's normal release channel does not persist arbitrary unsigned add-ons.
 
-5. Open the extension popup in **one browser only** and choose **Use this browser as initial source**. The daemon mirrors that tree to the other browser. Existing items in the destination with the same parent, title, and URL (or folder title) are adopted rather than duplicated.
+5. Open the extension popup in **Firefox only** and choose **Use this browser as initial source**. Wait for the confirmation.
+6. Open the popup in Chrome and choose **Replace this browser with synchronized bookmarks**. Confirm the destructive prompt. This removes Chrome's normal bookmark folders and repopulates them from the Firefox tree held by the local daemon. It does not alter Firefox.
 
-After initialization, use each browser's normal bookmark UI. The extension receives native bookmark events and applies remote operations through that same API.
+If replacement is not selected, existing destination items with the same parent, title, and URL (or folder title) are adopted rather than duplicated; nonmatching destination bookmarks are retained. After initialization, use each browser's normal bookmark UI. The extension receives native bookmark events and applies remote operations through that same API.
 
 ## Data and conflict rules
 
