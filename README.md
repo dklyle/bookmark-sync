@@ -27,7 +27,7 @@ Prerequisites: a Rust toolchain, `systemd --user`, Chrome or Chromium, and Firef
    ./scripts/install-linux.sh YOUR_CHROME_EXTENSION_ID
    ```
 
-   Chromium uses a different native-host directory. Copy `~/.config/google-chrome/NativeMessagingHosts/io.bookmark-sync.host.json` to the Chromium native messaging directory used by your distribution if needed.
+   Chromium uses a different native-host directory. Copy `~/.config/google-chrome/NativeMessagingHosts/io.bookmark_sync.host.json` to the Chromium native messaging directory used by your distribution if needed.
 
 4. In Firefox, open `about:debugging#/runtime/this-firefox`, choose **Load Temporary Add-on**, and select `dist/firefox/manifest.json`. For persistent installation, package and sign the extension with its project-specific ID `bookmark-sync-0fd2ea28-6ce8-4137-adcd-6ae8f4f27bf1@bookmark-sync.invalid`; Firefox's normal release channel does not persist arbitrary unsigned add-ons. Keep this ID unchanged for all signed updates.
 
@@ -61,4 +61,4 @@ Run the daemon in an isolated state directory:
 BOOKMARK_SYNC_STATE_DIR="$PWD/.state" cargo run -p bookmark-syncd
 ```
 
-The native host communicates using the browser native-messaging length-prefixed JSON protocol and proxies it to the daemon's Unix socket. Its native-host name is `io.bookmark-sync.host`.
+The native host communicates using the browser native-messaging length-prefixed JSON protocol and proxies it to the daemon's Unix socket. Its native-host name is `io.bookmark_sync.host`.

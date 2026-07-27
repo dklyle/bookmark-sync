@@ -24,7 +24,7 @@ function send(message) { if (port) port.postMessage(message); }
 
 function connect() {
   try {
-    port = api.runtime.connectNative("io.bookmark-sync.host");
+    port = api.runtime.connectNative("io.bookmark_sync.host");
     port.onMessage.addListener((message) => {
       if (message.type === "operation") remoteQueue = remoteQueue.then(() => applyRemote(message.operation));
     });

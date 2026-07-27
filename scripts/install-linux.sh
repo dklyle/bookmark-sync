@@ -17,13 +17,14 @@ hosts="$HOME/.local/lib/bookmark-sync"
 chrome_hosts="$HOME/.config/google-chrome/NativeMessagingHosts"
 firefox_hosts="$HOME/.mozilla/native-messaging-hosts"
 mkdir -p "$bin" "$hosts" "$chrome_hosts" "$firefox_hosts" "$HOME/.config/systemd/user"
+rm -f "$chrome_hosts/io.bookmark-sync.host.json" "$firefox_hosts/io.bookmark-sync.host.json"
 install -m 0755 "$root/target/release/bookmark-syncd" "$bin/bookmark-syncd"
 install -m 0755 "$root/target/release/bookmark-sync-host" "$hosts/bookmark-sync-host"
-cat >"$chrome_hosts/io.bookmark-sync.host.json" <<EOF
-{"name":"io.bookmark-sync.host","description":"Local Bookmark Sync native host","path":"$hosts/bookmark-sync-host","type":"stdio","allowed_origins":["chrome-extension://$chrome_id/"]}
+cat >"$chrome_hosts/io.bookmark_sync.host.json" <<EOF
+{"name":"io.bookmark_sync.host","description":"Local Bookmark Sync native host","path":"$hosts/bookmark-sync-host","type":"stdio","allowed_origins":["chrome-extension://$chrome_id/"]}
 EOF
-cat >"$firefox_hosts/io.bookmark-sync.host.json" <<EOF
-{"name":"io.bookmark-sync.host","description":"Local Bookmark Sync native host","path":"$hosts/bookmark-sync-host","type":"stdio","allowed_extensions":["bookmark-sync-0fd2ea28-6ce8-4137-adcd-6ae8f4f27bf1@bookmark-sync.invalid"]}
+cat >"$firefox_hosts/io.bookmark_sync.host.json" <<EOF
+{"name":"io.bookmark_sync.host","description":"Local Bookmark Sync native host","path":"$hosts/bookmark-sync-host","type":"stdio","allowed_extensions":["bookmark-sync-0fd2ea28-6ce8-4137-adcd-6ae8f4f27bf1@bookmark-sync.invalid"]}
 EOF
 cat >"$HOME/.config/systemd/user/bookmark-sync.service" <<EOF
 [Unit]
