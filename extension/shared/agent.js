@@ -136,12 +136,21 @@ async function bootstrap() {
   await api.storage.local.set({ bootstrapped: true });
 }
 
-function handlePopupMessage(message) {
-  if (message?.action === "bootstrap") return bootstrap();
+function handlePopupMessage(message, _sender, sendResponse) {
+  // Chrome does not reliably keep a Manifest V3 message channel open for a returned Promise.
+  // Acknowledge immediately, then let the service worker perform the long-running bookmark work.
+  if (message?.action === "bootstrap") {
+    void bootstrap().catch((error) => console.error("bookmark-sync bootstrap failed", error));
+    sendResponse({ accepted: true });
+    return false;
+  }
   if (message?.action === "replace") {
     remoteQueue = remoteQueue.then(replaceWithSynchronizedTree);
-    return remoteQueue;
+    void remoteQueue.catch((error) => console.error("bookmark-sync replacement failed", error));
+    sendResponse({ accepted: true });
+    return false;
   }
+  return false;
 }
 
 // Register before any asynchronous initialization. A popup message can wake Firefox's background page.

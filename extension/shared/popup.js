@@ -14,7 +14,7 @@ async function run(action) {
 document.querySelector("#bootstrap").addEventListener("click", async () => {
   try {
     await run("bootstrap");
-    status.textContent = "Initial bookmark tree sent to the local daemon.";
+    status.textContent = "Initial bookmark import started; you can close this popup.";
   } catch (error) { status.textContent = `Could not bootstrap: ${error.message}`; }
 });
 
@@ -22,6 +22,6 @@ document.querySelector("#replace").addEventListener("click", async () => {
   if (!confirm("Replace this browser's local bookmarks with the synchronized tree? This cannot be undone by Bookmark Sync.")) return;
   try {
     await run("replace");
-    status.textContent = "Local bookmarks replaced with the synchronized tree.";
+    status.textContent = "Replacement started; you can close this popup.";
   } catch (error) { status.textContent = `Could not replace bookmarks: ${error.message}`; }
 });
