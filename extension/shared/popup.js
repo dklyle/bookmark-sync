@@ -2,13 +2,8 @@ const api = globalThis.browser ?? globalThis.chrome;
 const status = document.querySelector("#status");
 
 async function run(action) {
-  // Firefox Manifest V2 has a persistent background page. Calling it directly avoids
-  // a startup race in which the popup is the event that wakes that page.
-  if (typeof api.runtime.getBackgroundPage === "function") {
-    const background = await api.runtime.getBackgroundPage();
-    if (background?.bookmarkSync?.[action]) return background.bookmarkSync[action]();
-  }
-  return api.runtime.sendMessage({ action });
+  const response = await api.runtime.sendMessage({ action });
+  if (response?.error) throw new Error(response.error);
 }
 
 document.querySelector("#bootstrap").addEventListener("click", async () => {

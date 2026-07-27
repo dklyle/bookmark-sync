@@ -155,8 +155,6 @@ function handlePopupMessage(message, _sender, sendResponse) {
 
 // Register before any asynchronous initialization. A popup message can wake Firefox's background page.
 api.runtime.onMessage.addListener(handlePopupMessage);
-// Firefox popups call this directly through runtime.getBackgroundPage(); Chrome uses onMessage above.
-globalThis.bookmarkSync = { bootstrap, replace: replaceWithSynchronizedTree };
 
 async function start() {
   ({ mappings = {} } = await api.storage.local.get({ mappings: {} }));
