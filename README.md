@@ -29,7 +29,7 @@ Prerequisites: a Rust toolchain, `systemd --user`, Chrome or Chromium, and Firef
 
    Chromium uses a different native-host directory. Copy `~/.config/google-chrome/NativeMessagingHosts/io.bookmark-sync.host.json` to the Chromium native messaging directory used by your distribution if needed.
 
-4. In Firefox, open `about:debugging#/runtime/this-firefox`, choose **Load Temporary Add-on**, and select `dist/firefox/manifest.json`. For persistent installation, package and sign the extension with its fixed ID `bookmark-sync@local`; Firefox's normal release channel does not persist arbitrary unsigned add-ons.
+4. In Firefox, open `about:debugging#/runtime/this-firefox`, choose **Load Temporary Add-on**, and select `dist/firefox/manifest.json`. For persistent installation, package and sign the extension with its project-specific ID `bookmark-sync-0fd2ea28-6ce8-4137-adcd-6ae8f4f27bf1@bookmark-sync.invalid`; Firefox's normal release channel does not persist arbitrary unsigned add-ons. Keep this ID unchanged for all signed updates.
 
 5. Open the extension popup in **Firefox only** and choose **Use this browser as initial source**. Wait for the confirmation.
 6. Open the popup in Chrome and choose **Replace this browser with synchronized bookmarks**. Confirm the destructive prompt. This removes Chrome's normal bookmark folders and repopulates them from the Firefox tree held by the local daemon. It does not alter Firefox.

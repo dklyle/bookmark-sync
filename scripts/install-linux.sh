@@ -23,7 +23,7 @@ cat >"$chrome_hosts/io.bookmark-sync.host.json" <<EOF
 {"name":"io.bookmark-sync.host","description":"Local Bookmark Sync native host","path":"$hosts/bookmark-sync-host","type":"stdio","allowed_origins":["chrome-extension://$chrome_id/"]}
 EOF
 cat >"$firefox_hosts/io.bookmark-sync.host.json" <<EOF
-{"name":"io.bookmark-sync.host","description":"Local Bookmark Sync native host","path":"$hosts/bookmark-sync-host","type":"stdio","allowed_extensions":["bookmark-sync@local"]}
+{"name":"io.bookmark-sync.host","description":"Local Bookmark Sync native host","path":"$hosts/bookmark-sync-host","type":"stdio","allowed_extensions":["bookmark-sync-0fd2ea28-6ce8-4137-adcd-6ae8f4f27bf1@bookmark-sync.invalid"]}
 EOF
 cat >"$HOME/.config/systemd/user/bookmark-sync.service" <<EOF
 [Unit]

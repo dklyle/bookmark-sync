@@ -6,5 +6,5 @@
   "permissions": ["bookmarks", "storage", "nativeMessaging"],
   "background": { "scripts": ["background.js"], "persistent": true },
   "browser_action": { "default_popup": "popup.html" },
-  "applications": { "gecko": { "id": "bookmark-sync@local" } }
+  "browser_specific_settings": { "gecko": { "id": "bookmark-sync-0fd2ea28-6ce8-4137-adcd-6ae8f4f27bf1@bookmark-sync.invalid", "data_collection_permissions": { "required": ["none"] } } }
 }
