@@ -102,7 +102,13 @@ async function replaceWithSynchronizedTree() {
   applying += 1;
   try {
     for (const rootId of new Set(Object.keys(rootIds))) {
-      for (const child of await api.bookmarks.getChildren(rootId)) {
+      let children;
+      try { children = await api.bookmarks.getChildren(rootId); }
+      catch (error) {
+        console.warn("bookmark-sync could not inspect local bookmark root", rootId, error);
+        continue;
+      }
+      for (const child of children) {
         try { await api.bookmarks.removeTree(child.id); }
         catch (error) { console.error("bookmark-sync could not remove local bookmark", child, error); }
       }
@@ -112,6 +118,7 @@ async function replaceWithSynchronizedTree() {
   } finally {
     applying -= 1;
   }
+  // A missing optional root must not prevent repopulation from the local canonical tree.
   send({ type: "resync" });
 }
 
