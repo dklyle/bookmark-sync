@@ -211,6 +211,17 @@ async fn write_message(
     Ok(())
 }
 
+async fn send_current(writer: &mut tokio::net::unix::OwnedWriteHalf, state: &State) -> Result<()> {
+    let current = {
+        let database = state.database.lock().expect("database mutex poisoned");
+        current_bookmarks(&database)?
+    };
+    for operation in current {
+        write_message(writer, &Message::Operation { operation }).await?;
+    }
+    Ok(())
+}
+
 async fn serve(stream: UnixStream, state: Arc<State>) -> Result<()> {
     let (read, mut write) = stream.into_split();
     let mut lines = BufReader::new(read).lines();
@@ -228,10 +239,7 @@ async fn serve(stream: UnixStream, state: Arc<State>) -> Result<()> {
     let mut events = state.events.subscribe();
     info!(%browser, "extension connected");
     let mut sent = HashSet::<String>::new();
-    let current = current_bookmarks(&state.database.lock().expect("database mutex poisoned"))?;
-    for operation in current {
-        write_message(&mut write, &Message::Operation { operation }).await?;
-    }
+    send_current(&mut write, &state).await?;
 
     loop {
         tokio::select! {
@@ -252,12 +260,7 @@ async fn serve(stream: UnixStream, state: Arc<State>) -> Result<()> {
                             let _ = state.events.send((browser.clone(), operation));
                         }
                     },
-                    Ok(Message::Resync) => {
-                        let current = current_bookmarks(&state.database.lock().expect("database mutex poisoned"))?;
-                        for operation in current {
-                            write_message(&mut write, &Message::Operation { operation }).await?;
-                        }
-                    }
+                    Ok(Message::Resync) => send_current(&mut write, &state).await?,
                     Ok(_) => write_message(&mut write, &Message::Error { message: "unexpected client message".into() }).await?,
                     Err(error) => write_message(&mut write, &Message::Error { message: error.to_string() }).await?,
                 },
@@ -268,7 +271,10 @@ async fn serve(stream: UnixStream, state: Arc<State>) -> Result<()> {
                     write_message(&mut write, &Message::Operation { operation }).await?;
                 }
                 Ok(_) => {},
-                Err(broadcast::error::RecvError::Lagged(count)) => warn!(%browser, count, "extension lagged; it must reconcile its bookmark tree"),
+                Err(broadcast::error::RecvError::Lagged(count)) => {
+                    warn!(%browser, count, "extension lagged; sending a full reconciliation");
+                    send_current(&mut write, &state).await?;
+                }
                 Err(broadcast::error::RecvError::Closed) => break,
             }
         }
