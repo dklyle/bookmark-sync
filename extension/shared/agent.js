@@ -10,6 +10,8 @@ let port;
 let applying = 0;
 let mappings = {};
 let remoteQueue = Promise.resolve();
+let markReady;
+const ready = new Promise((resolve) => { markReady = resolve; });
 
 function operation(kind, nodeId, fields = {}) {
   return { id: crypto.randomUUID(), nodeId, kind, ...fields };
@@ -96,6 +98,7 @@ async function applyRemote(op) {
 }
 
 async function replaceWithSynchronizedTree() {
+  await ready;
   applying += 1;
   try {
     for (const rootId of new Set(Object.keys(rootIds))) {
@@ -113,6 +116,7 @@ async function replaceWithSynchronizedTree() {
 }
 
 async function bootstrap() {
+  await ready;
   const tree = await api.bookmarks.getTree();
   const operations = [];
   async function visit(node) {
@@ -133,12 +137,7 @@ async function bootstrap() {
 }
 
 async function start() {
-  ({ mappings = {} } = await api.storage.local.get({ mappings: {} }));
-  connect();
-  api.bookmarks.onCreated.addListener((id, node) => void localCreate(id, node));
-  api.bookmarks.onChanged.addListener((id, changed) => void localChange(id, changed));
-  api.bookmarks.onMoved.addListener((id, move) => void localMove(id, move));
-  api.bookmarks.onRemoved.addListener((id) => void localRemove(id));
+  // Register this synchronously: a popup message can be what wakes Firefox's background page.
   api.runtime.onMessage.addListener((message) => {
     if (message?.action === "bootstrap") return bootstrap();
     if (message?.action === "replace") {
@@ -146,5 +145,12 @@ async function start() {
       return remoteQueue;
     }
   });
+  ({ mappings = {} } = await api.storage.local.get({ mappings: {} }));
+  api.bookmarks.onCreated.addListener((id, node) => void localCreate(id, node));
+  api.bookmarks.onChanged.addListener((id, changed) => void localChange(id, changed));
+  api.bookmarks.onMoved.addListener((id, move) => void localMove(id, move));
+  api.bookmarks.onRemoved.addListener((id) => void localRemove(id));
+  connect();
+  markReady();
 }
 void start();
