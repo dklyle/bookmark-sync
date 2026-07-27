@@ -1,7 +1,7 @@
 /* Local-only WebExtension agent. It deliberately has no network permissions. */
 const api = globalThis.browser ?? globalThis.chrome;
 const ROOTS = {
-  chrome: { "2": "root:toolbar", "3": "root:menu", "4": "root:mobile" },
+  chrome: { "1": "root:toolbar", "2": "root:menu", "3": "root:mobile" },
   firefox: { toolbar_____: "root:toolbar", menu_____: "root:menu", unfiled_____: "root:menu", mobile_____: "root:mobile" },
 };
 const browserName = globalThis.BOOKMARK_SYNC_BROWSER;
