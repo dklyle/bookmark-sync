@@ -38,5 +38,6 @@ Restart=on-failure
 WantedBy=default.target
 EOF
 systemctl --user daemon-reload
-systemctl --user enable --now bookmark-sync.service
+systemctl --user enable bookmark-sync.service
+systemctl --user restart bookmark-sync.service
 printf 'Installed. Load %s/dist/chrome in Chrome and %s/dist/firefox in Firefox.\n' "$root" "$root"
