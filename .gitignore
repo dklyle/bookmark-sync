@@ -1,5 +1,7 @@
 /target/
 /dist/
+/artifacts/
+*.swp
 /bookmarks.sqlite
 *.sqlite-shm
 *.sqlite-wal
